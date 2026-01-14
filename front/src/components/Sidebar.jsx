@@ -1,327 +1,238 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useState, useEffect } from "react";
+import {
+  Home,
+  Eye,
+  Plus,
+  Users,
+  ClipboardList,
+  Layers,
+  LogOut,
+  ChevronDown,
+  Menu,
+  X
+} from "lucide-react";
 
 export default function Sidebar() {
   const { authUser, perfil, logout } = useAuth();
   const navigate = useNavigate();
-  const [isMinified, setIsMinified] = useState(false);
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openVer, setOpenVer] = useState(false);
   const [openCrear, setOpenCrear] = useState(false);
 
-
+  const rol = Number(authUser?.RolId ?? perfil?.rolId);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  const rol = Number(authUser?.RolId ?? perfil?.rolId);
-
-  // Cerrar sidebar en móvil al cambiar ruta
   useEffect(() => {
     setIsMobileOpen(false);
   }, [navigate]);
 
-  // Cerrar sidebar en móvil al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (window.innerWidth < 768 && isMobileOpen) {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar && !sidebar.contains(e.target) &&
-          !document.getElementById('mobile-menu-button')?.contains(e.target)) {
-          setIsMobileOpen(false);
-        }
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [isMobileOpen]);
+  const itemBase =
+    "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition";
+  const itemActive = "bg-indigo-600 text-white";
+  const itemInactive = "text-gray-300 hover:bg-gray-700";
 
   return (
     <>
-      {/* Botón para abrir sidebar en móvil */}
+      {/* BOTÓN MÓVIL */}
       <button
-        id="mobile-menu-button"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-        aria-label="Abrir menú"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-900 text-white rounded-lg"
       >
-        {isMobileOpen ? (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        ) : (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        )}
+        {isMobileOpen ? <X /> : <Menu />}
       </button>
 
-      {/* Overlay para móvil */}
+      {/* OVERLAY */}
       {isMobileOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
+      {/* SIDEBAR */}
       <aside
-        id="sidebar"
         className={`
-          bg-gray-800 text-gray-100 min-h-screen 
+          fixed top-0 left-0 z-50
+          w-64 min-h-screen
+          bg-gray-900 text-gray-100
+          transition-transform duration-300
           flex flex-col
-          fixed md:relative
-          top-0 left-0
-          transform transition-transform duration-300 ease-in-out
-          z-50
-          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          ${isMinified ? 'w-16' : 'w-64'}
+          ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         `}
       >
-        {/* Header del Sidebar */}
-        <div className={`h-16 flex items-center ${isMinified ? 'justify-center px-0' : 'justify-between px-6'} border-b border-gray-700`}>
-          {!isMinified ? (
-            <>
-              <span className="font-bold text-lg">Menú</span>
-              {/* Botón para minificar (solo desktop) */}
-              <button
-                onClick={() => setIsMinified(!isMinified)}
-                className="hidden md:flex items-center justify-center w-8 h-8 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                aria-label={isMinified ? "Expandir menú" : "Minificar menú"}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {isMinified ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                  )}
-                </svg>
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsMinified(false)}
-              className="hidden md:flex items-center justify-center w-8 h-8 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-              aria-label="Expandir menú"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-              </svg>
-            </button>
-          )}
-
-          {/* Botón cerrar en móvil */}
-          <button
-            onClick={() => setIsMobileOpen(false)}
-            className="md:hidden flex items-center justify-center w-8 h-8 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            aria-label="Cerrar menú"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+        {/* HEADER */}
+        <div className="h-16 flex items-center px-4 border-b border-gray-700">
+          <span className="text-lg font-bold tracking-wide text-indigo-400">
+            Tasky
+          </span>
         </div>
 
-        {/* Contenido del Sidebar */}
-        <nav className="px-2 py-4 space-y-6 flex-1 overflow-y-auto">
-          {/* Home - siempre visible */}
-          <div className="space-y-1">
-            {!isMinified && <p className="text-xs uppercase text-gray-400 px-2 mb-1">Home</p>}
-            <Link
+        {/* NAV */}
+        <nav className="flex-1 px-2 py-4 space-y-6 overflow-y-auto">
+
+          {/* GENERAL */}
+          <div>
+            <p className="px-3 text-[11px] font-semibold text-gray-400 uppercase">
+              General
+            </p>
+
+            <NavLink
               to="/home"
-              className={`
-                flex items-center rounded-md px-2 py-2 text-sm hover:bg-gray-700
-                ${isMinified ? 'justify-center' : ''}
-              `}
-              title={isMinified ? "Home" : ""}
+              className={({ isActive }) =>
+                `${itemBase} ${isActive ? itemActive : itemInactive}`
+              }
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10M5 10h14" />
-              </svg>
-              {!isMinified && <span className="ml-3">Home</span>}
-            </Link>
+              <Home className="w-5 h-5" />
+              Home
+            </NavLink>
           </div>
 
-          {/* USUARIO (Rol 3) */}
+          {/* USUARIO */}
           {rol === 3 && (
-            <div className="space-y-1">
-              {!isMinified && <p className="text-xs uppercase text-gray-400 px-2 mb-1">Tareas</p>}
-              <Link
+            <div>
+              <p className="px-3 text-[11px] font-semibold text-gray-400 uppercase">
+                Tareas
+              </p>
+
+              <NavLink
                 to="/usuario"
-                className={`
-                  flex items-center rounded-md px-2 py-2 text-sm hover:bg-gray-700
-                  ${isMinified ? 'justify-center' : ''}
-                `}
-                title={isMinified ? "Mis tareas" : ""}
+                className={({ isActive }) =>
+                  `${itemBase} ${isActive ? itemActive : itemInactive}`
+                }
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                {!isMinified && <span className="ml-3">Mis tareas</span>}
-              </Link>
+                <ClipboardList className="w-5 h-5" />
+                Mis tareas
+              </NavLink>
             </div>
           )}
 
-          {/* RESPONSABLE (Rol 2) */}
-          {rol === 2 && (
-            <div className="space-y-1">
-              {!isMinified && <p className="text-xs uppercase text-gray-400 px-2 mb-1">Administración</p>}
-              <Link
-                to="/responsable"
-                className={`
-                  flex items-center rounded-md px-2 py-2 text-sm hover:bg-gray-700
-                  ${isMinified ? 'justify-center' : ''}
-                `}
-                title={isMinified ? "Usuarios y tareas" : ""}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {!isMinified && <span className="ml-3">Usuarios y tareas</span>}
-              </Link>
-            </div>
-          )}
-
-          {/* JEFE (Rol 1) */}
-          {rol === 1 && (
+          {/* ADMINISTRACIÓN */}
+          {(rol === 1 || rol === 2) && (
             <div className="space-y-2">
-              {!isMinified && (
-                <p className="text-xs uppercase text-gray-400 px-2 mb-1">
-                  Administración
-                </p>
-              )}
+              <p className="px-3 text-[11px] font-semibold text-gray-400 uppercase">
+                Administración
+              </p>
 
-              {/* ===== VER ===== */}
+              {/* VER */}
               <button
-                type="button"
                 onClick={() => setOpenVer(!openVer)}
-                className={`
-                  flex items-center w-full justify-between px-2 py-2 text-sm rounded-md
-                  hover:bg-gray-700
-                  ${isMinified ? "justify-center" : ""}
-                `}
+                className={`${itemBase} ${itemInactive} justify-between`}
               >
-                <div className="flex items-center">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0Z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5
-                      c4.478 0 8.268 2.943 9.542 7
-                      -1.274 4.057-5.064 7-9.542 7
-                      -4.477 0-8.268-2.943-9.542-7Z" />
-                  </svg>
-                  {!isMinified && <span className="ml-3">Ver</span>}
+                <div className="flex items-center gap-3">
+                  <Eye className="w-5 h-5" />
+                  Ver
                 </div>
-
-                {!isMinified && (
-                  <svg
-                    className={`w-4 h-4 transition-transform ${openVer ? "rotate-180" : ""}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 9-7 7-7-7" />
-                  </svg>
-                )}
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${
+                    openVer ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
-              {openVer && !isMinified && (
-                <ul className="space-y-1 pl-6">
-                  <li>
-                    <Link to="/jefe" className="block px-2 py-1.5 rounded-md hover:bg-gray-700">
-                      Equipo
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/ver-tareas" className="block px-2 py-1.5 rounded-md hover:bg-gray-700">
-                      Tareas
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/jefe/areas" className="block px-2 py-1.5 rounded-md hover:bg-gray-700">
+              {openVer && (
+                <ul className="ml-4 pl-4 border-l border-gray-700 space-y-1">
+                  <NavLink
+                    to={rol === 1 ? "/jefe" : "/responsable"}
+                    className={({ isActive }) =>
+                      `${itemBase} ${isActive ? itemActive : itemInactive}`
+                    }
+                  >
+                    <Users className="w-4 h-4" />
+                    Equipo
+                  </NavLink>
+
+                  <NavLink
+                    to={rol === 1 ? "/ver-tareas" : "/ver-tareasRES"}
+                    className={({ isActive }) =>
+                      `${itemBase} ${isActive ? itemActive : itemInactive}`
+                    }
+                  >
+                    <ClipboardList className="w-4 h-4" />
+                    Tareas
+                  </NavLink>
+
+                  {rol === 1 && (
+                    <NavLink
+                      to="/jefe/areas"
+                      className={({ isActive }) =>
+                        `${itemBase} ${isActive ? itemActive : itemInactive}`
+                      }
+                    >
+                      <Layers className="w-4 h-4" />
                       Áreas
-                    </Link>
-                  </li>
+                    </NavLink>
+                  )}
                 </ul>
               )}
 
-              {/* ===== CREAR ===== */}
+              {/* CREAR */}
               <button
-                type="button"
                 onClick={() => setOpenCrear(!openCrear)}
-                className={`
-                  flex items-center w-full justify-between px-2 py-2 text-sm rounded-md
-                  hover:bg-gray-700
-                  ${isMinified ? "justify-center" : ""}
-                `}
+                className={`${itemBase} ${itemInactive} justify-between`}
               >
-                <div className="flex items-center">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                      d="M12 4v16m8-8H4" />
-                  </svg>
-                  {!isMinified && <span className="ml-3">Crear</span>}
+                <div className="flex items-center gap-3">
+                  <Plus className="w-5 h-5" />
+                  Crear
                 </div>
-
-                {!isMinified && (
-                  <svg
-                    className={`w-4 h-4 transition-transform ${openCrear ? "rotate-180" : ""}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 9-7 7-7-7" />
-                  </svg>
-                )}
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${
+                    openCrear ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
-              {openCrear && !isMinified && (
-                <ul className="space-y-1 pl-6">
-                  <li>
-                    <Link to="/crear-usuario" className="block px-2 py-1.5 rounded-md hover:bg-gray-700">
-                      Usuarios
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/crear-tarea" className="block px-2 py-1.5 rounded-md hover:bg-gray-700">
-                      Tareas
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/jefe/crear-areas" className="block px-2 py-1.5 rounded-md hover:bg-gray-700">
+              {openCrear && (
+                <ul className="ml-4 pl-4 border-l border-gray-700 space-y-1">
+                  <NavLink
+                    to="/crear-usuario"
+                    className={({ isActive }) =>
+                      `${itemBase} ${isActive ? itemActive : itemInactive}`
+                    }
+                  >
+                    Usuarios
+                  </NavLink>
+
+                  <NavLink
+                    to={rol === 1 ? "/crear-tarea" : "/crear-tareaRES"}
+                    className={({ isActive }) =>
+                      `${itemBase} ${isActive ? itemActive : itemInactive}`
+                    }
+                  >
+                    Tareas
+                  </NavLink>
+
+                  {rol === 1 && (
+                    <NavLink
+                      to="/jefe/crear-areas"
+                      className={({ isActive }) =>
+                        `${itemBase} ${isActive ? itemActive : itemInactive}`
+                      }
+                    >
                       Áreas
-                    </Link>
-                  </li>
+                    </NavLink>
+                  )}
                 </ul>
               )}
             </div>
           )}
         </nav>
 
-        {/* Footer del Sidebar - Botón Cerrar Sesión */}
-        <div className="p-4 border-t border-gray-700">
+        {/* LOGOUT */}
+        <div className="mt-auto p-4 border-t border-gray-700">
           <button
             onClick={handleLogout}
-            className={`
-              w-full rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white 
-              hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500
-              flex items-center justify-center
-              ${isMinified ? 'px-2' : ''}
-            `}
-            title={isMinified ? "Cerrar sesión" : ""}
+            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-400
+                       hover:bg-red-600 hover:text-white rounded-md transition"
           >
-            {isMinified ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            ) : (
-              "Cerrar sesión"
-            )}
+            <LogOut className="w-5 h-5" />
+            Cerrar sesión
           </button>
         </div>
       </aside>

@@ -13,6 +13,8 @@ import Home from "./pages/Home";
 import CrearUsuarioForm from "./components/Usuario/CrearUsuario";
 import TareasJefeTable from "./pages/jefe/verTareas.jsx";
 import CrearTareaPage from "./pages/jefe/CrearTarea.jsx";
+import ResponsableVerTareas from "./pages/Responsable/VerTareas";
+import CrearTareaPageRES from "./pages/Responsable/CrearTareas.jsx";
 
 function App() {
   return (
@@ -82,8 +84,32 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* VER TAREAS - Solo para responsable */}
+        <Route
+          path="/ver-tareasRES"
+          element={
+            <ProtectedRoute>
+              <RoleGuard allowedRoles={[ROLES.RESPONSABLE]}>
+                <ResponsableVerTareas />
+              </RoleGuard>
+            </ProtectedRoute>
+          }
+        />
         {/* CREAR TAREA - Solo para JEFE */}
         <Route
+          path="/crear-tareaRES"
+          element={
+            <ProtectedRoute>
+              <RoleGuard allowedRoles={[ROLES.RESPONSABLE]}>
+                <CrearTareaPageRES />
+              </RoleGuard>
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* CREAR TAREA - Solo para JEFE */}
+        < Route
           path="/crear-tarea"
           element={
             <ProtectedRoute>

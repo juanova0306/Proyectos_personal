@@ -20,14 +20,26 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
         comentario: "" // Cambiado de "comentarios" a "comentario" para coincidir con el parámetro SQL
     });
 
-    // Cargar usuarios
+    // Cargar usuarios (SOLO ROL 3)
     useEffect(() => {
         const cargarUsuarios = async () => {
             try {
                 const response = await obtenerUsuarios();
-                setUsuarios(Array.isArray(response) ? response : []);
+                
+                // Filtrar usuarios por rol 3 (usuarios normales)
+                const usuariosFiltrados = Array.isArray(response) 
+                    ? response.filter(usuario => {
+                        // Verificar diferentes nombres posibles para el rol ID
+                        const rolId = usuario.rol_ID || usuario.rol_id || usuario.rolId;
+                        return rolId === 3 || rolId === "3";
+                    })
+                    : [];
+                
+                console.log("Usuarios con rol 3 cargados:", usuariosFiltrados);
+                setUsuarios(usuariosFiltrados);
+                
             } catch (error) {
-                console.error(error);
+                console.error("Error al cargar usuarios:", error);
                 setErrors({ general: "Error al cargar usuarios" });
             } finally {
                 setLoadingData(false);
@@ -88,14 +100,21 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
         setSuccessMessage("");
 
         try {
-            // Preparar datos para enviar al backend
+            // Preparar datos para enviar al backend - CORREGIDO
             const datosParaEnviar = {
-                ...formData,
-                comentario: formData.comentario || "" // Asegurarse de que siempre se envíe
+                area_ID: areaId,
+                usuario_ID: formData.usuario_ID, // Asegurar que se envía correctamente
+                titulo: formData.titulo,
+                descripcion: formData.descripcion,
+                estado: formData.estado,
+                prioridad: formData.prioridad,
+                comentario: formData.comentario || ""
             };
             
+            console.log("📤 Datos a enviar al backend:", datosParaEnviar); // Para depuración
+            
             await crearTarea(datosParaEnviar);
-            setSuccessMessage("Tarea creada y asignada correctamente");
+            setSuccessMessage("✅ Tarea creada y asignada correctamente");
 
             if (onSuccess) onSuccess();
 
@@ -111,12 +130,13 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
             });
 
         } catch (error) {
-            console.error("Error completo:", error);
-            console.error("Respuesta del servidor:", error.response?.data);
+            console.error("❌ Error completo al crear tarea:", error);
+            console.error("📄 Respuesta del servidor:", error.response?.data);
             
             setErrors({
                 general: error.response?.data?.detalle || 
                         error.response?.data?.mensaje || 
+                        error.message || 
                         "Error al crear la tarea"
             });
         } finally {
@@ -135,16 +155,14 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
     }
 
     return (
-
         <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border">
-
             {/* Header */}
             <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-800">
                     Crear Nueva Tarea
                 </h2>
                 <p className="text-gray-600">
-                    Asigne la tarea a un usuario
+                    Asigne la tarea a un usuario (solo usuarios con rol 3)
                 </p>
             </div>
 
@@ -162,7 +180,6 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-
                 {/* Usuario */}
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
@@ -178,12 +195,13 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
                             }`}
                     >
                         <option value="0">-- Seleccione un usuario --</option>
-                        {usuarios.map((u, index) => {
-                            const id = u.id || u.usuario_ID || index + 1;
-                            const nombre = `${u.nombre || u.Nombre} ${u.apellido || u.Apellido}`;
+                        {usuarios.map((usuario, index) => {
+                            // Manejar diferentes estructuras de ID
+                            const id = usuario.usuario_ID || usuario.id || usuario.ID || index + 1;
+                            const nombre = `${usuario.nombre || usuario.Nombre || ""} ${usuario.apellido || usuario.Apellido || ""}`.trim();
                             return (
                                 <option key={id} value={id}>
-                                    {nombre}
+                                    {nombre || `Usuario ${id}`}
                                 </option>
                             );
                         })}
@@ -192,8 +210,8 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
                         <p className="text-sm text-red-600">{errors.usuario_ID}</p>
                     )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Estado */}
                     <div className="space-y-2">
                         <label className="block text-sm font-medium text-gray-700">
@@ -229,7 +247,6 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
                             <option value="Alta">Alta</option>
                         </select>
                     </div>
-
                 </div>
 
                 {/* Título */}
@@ -270,7 +287,7 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
                         Comentarios
                     </label>
                     <textarea
-                        name="comentario" // Cambiado de "comentarios" a "comentario"
+                        name="comentario"
                         rows={3}
                         value={formData.comentario}
                         onChange={handleChange}
@@ -301,7 +318,6 @@ const CrearTareaForm = ({ areaId, onSuccess, onCancel }) => {
                 </div>
             </form>
         </div>
-
     );
 };
 

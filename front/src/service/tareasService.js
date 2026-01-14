@@ -10,7 +10,7 @@ export async function obtenerTarea(id) {
     return response.data.response;
 }
 
-export async function crearTarea(tarea) {
+export async function crearTarea(tarea) { 
     const response = await api.post("/Tareas/Crear", tarea);
     return response.data.response;
 }

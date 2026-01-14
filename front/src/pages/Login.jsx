@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginRequest } from "../service/authService";
 import { useAuth } from "../auth/AuthContext";
+import { Mail, Lock } from "lucide-react";
 
 export default function Login() {
   const { login } = useAuth();
@@ -9,106 +10,130 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       const { token, usuario } = await loginRequest({ email, password });
       login(token, usuario);
+
       const rol = Number(usuario.rolId);
-      if (rol === 1) navigate("/home");
-      else if (rol === 2) navigate("/home");
-      else if (rol === 3) navigate("/home");
+      if ([1, 2, 3].includes(rol)) navigate("/home");
       else navigate("/no-autorizado");
-
-
-    } catch (error) {
-      alert("Credenciales incorrectas");
+    } catch {
+      setError("Correo o contraseña incorrectos");
     }
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-gradient-to-br from-indigo-50 to-gray-100">
 
-      {/* Imagen lateral */}
-      <div className="hidden lg:flex w-1/2 bg-primary">
+      {/* PANEL IZQUIERDO */}
+      <div className="hidden lg:flex w-1/2 relative">
         <img
           src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7"
-          alt="Login"
-          className="h-full w-full object-cover opacity-90"
+          alt="Tasky"
+          className="absolute inset-0 h-full w-full object-cover"
         />
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-indigo-900/60" />
+
+        {/* Texto superior */}
+        <div className="relative z-10 p-12 text-white">
+          <h1 className="text-4xl font-bold leading-tight">
+            Bienvenido a Tasky
+          </h1>
+
+          <p className="mt-4 max-w-md text-lg text-indigo-100">
+            La plataforma líder en gestión de proyectos y tareas colaborativas.
+            Optimiza tu flujo de trabajo y aumenta la productividad de tu equipo.
+          </p>
+        </div>
       </div>
 
-      {/* Formulario */}
-      <div className="flex w-full lg:w-1/2 items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm">
+      {/* PANEL DERECHO */}
+      <div className="flex w-full lg:w-1/2 items-center justify-center px-6">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 
           {/* Logo */}
           <img
-            className="mx-auto h-10 w-auto"
+            className="mx-auto h-10"
             src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
             alt="Logo"
           />
 
-          <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-center text-2xl font-bold text-gray-900">
             Iniciar sesión
           </h2>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="mt-10 space-y-6">
+          <p className="text-center text-sm text-gray-500 mt-1">
+            Accede a tu cuenta
+          </p>
+
+          {/* Error */}
+          {error && (
+            <div className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
+          {/* Formulario */}
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-900">
+              <label className="block text-sm font-medium text-gray-700">
                 Correo electrónico
               </label>
-              <div className="mt-2">
+              <div className="relative mt-1">
+                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                 <input
                   type="email"
+                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900
-                             outline outline-1 outline-gray-300 placeholder:text-gray-400
-                             focus:outline-2 focus:outline-primary sm:text-sm"
+                  placeholder="correo@empresa.com"
+                  className="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2
+                             focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-900">
+              <label className="block text-sm font-medium text-gray-700">
                 Contraseña
               </label>
-              <div className="mt-2">
+              <div className="relative mt-1">
+                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                 <input
                   type="password"
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900
-                             outline outline-1 outline-gray-300 placeholder:text-gray-400
-                             focus:outline-2 focus:outline-primary sm:text-sm"
+                  placeholder="••••••••"
+                  className="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2
+                             focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                 />
               </div>
             </div>
 
             {/* Botón */}
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5
-                           text-sm font-semibold text-white shadow hover:bg-indigo-500
-                           focus-visible:outline-2 focus-visible:outline-offset-2
-                           focus-visible:outline-indigo-600"
-              >
-                Entrar
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold
+                         text-white shadow hover:bg-indigo-500 transition-all
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              Entrar
+            </button>
           </form>
 
-          <p className="mt-10 text-center text-sm text-gray-500">
+          <p className="mt-8 text-center text-xs text-gray-400">
             Sistema Tasky © 2025
           </p>
         </div>
