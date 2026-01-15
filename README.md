@@ -6,4 +6,4 @@ En este proyecto me encargué de todo el ciclo: diseño de la interfaz, lógica 
 ## 📷 Vista del sistema
 
 ![Pantalla de inicio de sesión](login-tasky.png)
-
+![Pantalla del jefe](dashboar-jefe.jpeg)
