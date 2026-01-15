@@ -3,4 +3,7 @@ Es una aplicación web tipo CRUD que permite crear, editar, eliminar y consultar
 El frontend está desarrollado con React y Tailwind CSS, el backend con .NET mediante una API REST, y la información se almacena en SQL Server.
 En este proyecto me encargué de todo el ciclo: diseño de la interfaz, lógica de negocio, conexión con la base de datos y consumo de la API desde el frontend.
 
+## 📷 Vista del sistema
+
+![Pantalla de inicio de sesión](login-tasky.png)
 
